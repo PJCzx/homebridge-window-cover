@@ -16,9 +16,14 @@ function WindowCover(log, config) {
 	//this.log(this.name, this.apiroute);
 	
 	// Required Characteristics
-	//this.currentPosition = Characteristic.Position;
-	//this.targetPosition = Characteristic.TargetPosition;
-	//this.positionState = Characteristic.PositionState;
+	this.currentPosition = 100;
+	this.targetPosition = 100;
+
+	//Characteristic.PositionState.DECREASING = 0;
+	//Characteristic.PositionState.INCREASING = 1;
+	//Characteristic.PositionState.STOPPED = 2;
+	this.positionState = Characteristic.PositionState.STOPPED;
+	this.service = new Service.WindowCovering(this.name);
 
 	// Optional Characteristics
 	//this.holdPosition = Characteristic.HoldPosition;
@@ -58,6 +63,13 @@ WindowCover.prototype = {
 	setTargetPosition: function (value, callback) {
 		this.log("setTargetPosition from %s to %s", this.targetPosition, value);
 		this.targetPosition = value;
+
+		//Fake processing
+		this.currentPosition = this.targetPosition;
+		this.service.setCharacteristic(Characteristic.CurrentPosition, this.currentPosition);
+		//this.positionState = Characteristic.PositionState.STOPPED;
+		this.log("currentPosition is now %s", this.currentPosition);
+
 		var error = null;
 		callback(error);
 	},
@@ -66,13 +78,6 @@ WindowCover.prototype = {
 		this.log("getPositionState :", this.positionState);
 		var error = null;
 		callback(error, this.positionState);
-	},
-
-	setPositionState: function(value, callback) {
-		this.log("setPositionState from %s to %s", this.setPositionState, value);
-		this.positionState = value;
-		var error = null;
-		callback(error);
 	},
 
 	getServices: function() {
@@ -86,30 +91,27 @@ WindowCover.prototype = {
 			.setCharacteristic(Characteristic.Model, "HTTP Model")
 			.setCharacteristic(Characteristic.SerialNumber, "HTTP Serial Number");
 
-		var windowCoverService = new Service.WindowCovering(this.name);
-
-		windowCoverService
+		this.service
 			.getCharacteristic(Characteristic.Name)
 			.on('get', this.getName.bind(this));
 
 		// Required Characteristics
-		windowCoverService
+		this.service
 			.getCharacteristic(Characteristic.CurrentPosition)
 			.on('get', this.getCurrentPosition.bind(this));
 
- 		windowCoverService
+ 		this.service
 			.getCharacteristic(Characteristic.TargetPosition)
 			.on('get', this.getTargetPosition.bind(this))
 			.on('set', this.setTargetPosition.bind(this));
 
-		windowCoverService
+		this.service
 			.getCharacteristic(Characteristic.PositionState)
-			.on('get', this.getPositionState.bind(this))
-			.on('set', this.setPositionState.bind(this));
+			.on('get', this.getPositionState.bind(this));
 
 		// Optional Characteristics
 		//TODO
 	
-		return [informationService, windowCoverService];
+		return [informationService, this.service];
 	}
 };
