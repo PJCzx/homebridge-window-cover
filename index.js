@@ -66,8 +66,10 @@ WindowCover.prototype = {
 
 		//Fake processing
 		this.currentPosition = this.targetPosition;
+		//this.service.setCharacteristic(Characteristic.PositionState, Characteristic.PositionState.INCREASING);
+		//this.service.setCharacteristic(Characteristic.PositionState, Characteristic.PositionState.DECREASING);
+		//this.service.setCharacteristic(Characteristic.PositionState, Characteristic.PositionState.STOPPED);
 		this.service.setCharacteristic(Characteristic.CurrentPosition, this.currentPosition);
-		//this.positionState = Characteristic.PositionState.STOPPED;
 		this.log("currentPosition is now %s", this.currentPosition);
 
 		var error = null;
