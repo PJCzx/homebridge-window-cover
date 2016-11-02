@@ -1,6 +1,7 @@
 var Service, Characteristic;
 
 module.exports = function(homebridge) {
+	console.log("homebridge API version: " + homebridge.version);
   Service = homebridge.hap.Service;
   Characteristic = homebridge.hap.Characteristic;
   homebridge.registerAccessory("homebridge-window-cover", "WindowCover", WindowCover);
@@ -85,23 +86,23 @@ WindowCover.prototype = {
 			.setCharacteristic(Characteristic.Model, "HTTP Model")
 			.setCharacteristic(Characteristic.SerialNumber, "HTTP Serial Number");
 
-		var WindowCoverService = new Service.WindowCover(this.name);
+		var windowCoverService = new Service.WindowCovering(this.name);
 
-		WindowCoverService
+		windowCoverService
 			.getCharacteristic(Characteristic.Name)
 			.on('get', this.getName.bind(this));
 
 		// Required Characteristics
-		WindowCoverService
+		windowCoverService
 			.getCharacteristic(Characteristic.CurrentPosition)
 			.on('get', this.getCurrentPosition.bind(this));
 
- 		WindowCoverService
+ 		windowCoverService
 			.getCharacteristic(Characteristic.TargetPosition)
 			.on('get', this.getTargetPosition.bind(this))
 			.on('set', this.setTargetPosition.bind(this));
 
-		WindowCoverService
+		windowCoverService
 			.getCharacteristic(Characteristic.PositionState)
 			.on('get', this.getPositionState.bind(this))
 			.on('set', this.setPositionState.bind(this));
@@ -109,6 +110,6 @@ WindowCover.prototype = {
 		// Optional Characteristics
 		//TODO
 	
-		return [informationService, WindowCoverService];
+		return [informationService, windowCoverService];
 	}
 };
