@@ -1,0 +1,27 @@
+{
+  "name": "homebridge-window-cover",
+  "version": "1.0.0",
+  "description": "Homebridge Window Cover Plugin",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PJCzx/homebridge-window-cover.git"
+  },
+  "keywords": [
+    "homebridge",
+    "blinder",
+    "shutter",
+    "HAP",
+    "window",
+    "cover"
+  ],
+  "author": "Pierre-Julien Cazaux",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/PJCzx/homebridge-window-cover/issues"
+  },
+  "homepage": "https://github.com/PJCzx/homebridge-window-cover#readme"
+}
