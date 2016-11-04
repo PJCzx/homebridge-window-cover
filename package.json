@@ -3,8 +3,8 @@
   "version": "1.0.2",
   "description": "Homebridge Window Cover Plugin",
   "main": "index.js",
-  "engines" : {
-    "homebridge" : ">=0.3.2"
+  "engines": {
+    "homebridge": ">=0.3.2"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -27,5 +27,8 @@
   "bugs": {
     "url": "https://github.com/PJCzx/homebridge-window-cover/issues"
   },
-  "homepage": "https://github.com/PJCzx/homebridge-window-cover#readme"
+  "homepage": "https://github.com/PJCzx/homebridge-window-cover#readme",
+  "dependencies": {
+    "request": "^2.78.0"
+  }
 }
