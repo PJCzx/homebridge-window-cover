@@ -1,3 +1,5 @@
+var request = require("request");
+
 var Service, Characteristic;
 
 module.exports = function(homebridge) {
@@ -10,10 +12,10 @@ module.exports = function(homebridge) {
 
 function WindowCover(log, config) {
 	this.log = log;
-	this.name = config.name;
-
-	//this.apiroute = config.apiroute || "apiroute";
-	//this.log(this.name, this.apiroute);
+	this.name = config.name || "A window cover need a name";
+	this.apiroute = config.apiroute || "";
+	this.id = config.id || 0;
+	this.service = new Service.WindowCovering(this.name);
 	
 	// Required Characteristics
 	this.currentPosition = 100;
@@ -22,8 +24,9 @@ function WindowCover(log, config) {
 	//Characteristic.PositionState.DECREASING = 0;
 	//Characteristic.PositionState.INCREASING = 1;
 	//Characteristic.PositionState.STOPPED = 2;
+
 	this.positionState = Characteristic.PositionState.STOPPED;
-	this.service = new Service.WindowCovering(this.name);
+	this.service.setCharacteristic(Characteristic.PositionState, Characteristic.PositionState.STOPPED);
 
 	// Optional Characteristics
 	//this.holdPosition = Characteristic.HoldPosition;
@@ -63,17 +66,41 @@ WindowCover.prototype = {
 	setTargetPosition: function (value, callback) {
 		this.log("setTargetPosition from %s to %s", this.targetPosition, value);
 		this.targetPosition = value;
+		
+		if(this.targetPosition > this.currentPosition) {
+			this.service.setCharacteristic(Characteristic.PositionState, Characteristic.PositionState.INCREASING);
+		} else if(this.targetPosition < this.currentPosition) {
+			this.service.setCharacteristic(Characteristic.PositionState, Characteristic.PositionState.DECREASING);
+		}
 
-		//Fake processing
-		this.currentPosition = this.targetPosition;
-		//this.service.setCharacteristic(Characteristic.PositionState, Characteristic.PositionState.INCREASING);
-		//this.service.setCharacteristic(Characteristic.PositionState, Characteristic.PositionState.DECREASING);
-		//this.service.setCharacteristic(Characteristic.PositionState, Characteristic.PositionState.STOPPED);
-		this.service.setCharacteristic(Characteristic.CurrentPosition, this.currentPosition);
-		this.log("currentPosition is now %s", this.currentPosition);
+		var url = this.apiroute + "/targetposition/"+ this.id + "/" + this.targetPosition;
+		this.log("GET", url);
 
-		var error = null;
-		callback(error);
+		request.get({
+			url: url
+		}, function(err, response, body) {
+			if (!err && response.statusCode == 200) {
+				this.log("Response success");
+				this.currentPosition = this.targetPosition;
+				this.service.setCharacteristic(Characteristic.CurrentPosition, this.currentPosition);
+				this.log("currentPosition is now %s", this.currentPosition);
+				this.service.setCharacteristic(Characteristic.PositionState, Characteristic.PositionState.STOPPED);
+				//doSuccess.bind(this);
+				callback(null); // success
+			} else {
+				if(this.apiroute === "") {
+					this.log("Response ERROR !!! > Fake Succes here");
+					this.currentPosition = this.targetPosition;
+					this.service.setCharacteristic(Characteristic.CurrentPosition, this.currentPosition);
+					this.log("currentPosition is now %s", this.currentPosition);
+					this.service.setCharacteristic(Characteristic.PositionState, Characteristic.PositionState.STOPPED);
+					callback(null); // success
+				} else {
+					this.log("Response error" , err);
+					callback(err);
+				}
+			}
+		}.bind(this));
 	},
 
 	getPositionState: function(callback) {

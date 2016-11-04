@@ -23,7 +23,9 @@ Configuration sample:
         "accessories": [
             {
                 "accessory": "WindowCover",
-                "name": "Window Cover Demo"
+                "name": "Window Cover Demo",
+                "apiroute": "",
+                "id": "123"
             }
         ],
 
