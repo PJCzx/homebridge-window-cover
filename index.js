@@ -1,4 +1,5 @@
 var request = require("request");
+var PythonShell = require('python-shell');
 
 var Service, Characteristic;
 
@@ -13,10 +14,14 @@ module.exports = function(homebridge) {
 function WindowCover(log, config) {
 	this.log = log;
 	this.name = config.name || "A window cover need a name";
-	this.apiroute = config.apiroute || "";
+	this.apiroute = config.apiroute || undefined;
 	this.id = config.id || 0;
 	this.service = new Service.WindowCovering(this.name);
-	
+	this.scriptPath = config.scriptPath || undefined,
+	this.commandUp = config.commandUp || "up",
+	this.commandStop = config.commandUp || "stop",
+	this.commandDown = config.commandDown || "down",
+
 	// Required Characteristics
 	this.currentPosition = 100;
 	this.targetPosition = 100;
@@ -67,40 +72,63 @@ WindowCover.prototype = {
 		this.log("setTargetPosition from %s to %s", this.targetPosition, value);
 		this.targetPosition = value;
 		
+		var options = {};
+		options.scriptPath =  this.scriptPath;
+		options.args = [this.commandStop];
+
 		if(this.targetPosition > this.currentPosition) {
 			this.service.setCharacteristic(Characteristic.PositionState, Characteristic.PositionState.INCREASING);
+			options.args = [this.commandUp];
 		} else if(this.targetPosition < this.currentPosition) {
 			this.service.setCharacteristic(Characteristic.PositionState, Characteristic.PositionState.DECREASING);
+			options.args = [this.commandDown];
 		}
 
-		var url = this.apiroute + "/targetposition/"+ this.id + "/" + this.targetPosition;
-		this.log("GET", url);
-
-		request.get({
-			url: url
-		}, function(err, response, body) {
-			if (!err && response.statusCode == 200) {
-				this.log("Response success");
-				this.currentPosition = this.targetPosition;
-				this.service.setCharacteristic(Characteristic.CurrentPosition, this.currentPosition);
-				this.log("currentPosition is now %s", this.currentPosition);
-				this.service.setCharacteristic(Characteristic.PositionState, Characteristic.PositionState.STOPPED);
-				//doSuccess.bind(this);
-				callback(null); // success
-			} else {
-				if(this.apiroute === "") {
-					this.log("Response ERROR !!! > Fake Succes here");
+		//PYTHON 
+		if(this.scriptPath !== undefined) {
+			PythonShell.run(this.scriptPath, options, function (err, results) {
+			  	if (err) {
+			  		this.log("Script Error", options.scriptPath, options.args);
+			  	 	callback(err);
+			  	} else {
+					// results is an array consisting of messages collected during execution
+				  	console.log('Success ! Results: %j', results);
+				  	this.currentPosition = this.targetPosition;
+				  	this.service.setCharacteristic(Characteristic.CurrentPosition, this.currentPosition);
+				  	this.log("currentPosition is now %s", this.currentPosition);
+					this.service.setCharacteristic(Characteristic.PositionState, Characteristic.PositionState.STOPPED);
+				  	callback(null); // success
+			  	}
+			}.bind(this));
+		} else if (this.apiroute !== undefined) {
+			//HTTP API ACTION
+			var url = this.apiroute + "/targetposition/"+ this.id + "/" + this.targetPosition;
+			this.log("GET", url);
+			request.get({
+				url: url
+			}, function(err, response, body) {
+				if (!err && response.statusCode == 200) {
+					this.log("Response success");
 					this.currentPosition = this.targetPosition;
 					this.service.setCharacteristic(Characteristic.CurrentPosition, this.currentPosition);
 					this.log("currentPosition is now %s", this.currentPosition);
 					this.service.setCharacteristic(Characteristic.PositionState, Characteristic.PositionState.STOPPED);
+					//doSuccess.bind(this);
 					callback(null); // success
 				} else {
 					this.log("Response error" , err);
 					callback(err);
 				}
-			}
-		}.bind(this));
+			}.bind(this));
+		} else {
+			//FAKE SUCCESS
+			this.log("Fake Success");
+			this.currentPosition = this.targetPosition;
+			this.service.setCharacteristic(Characteristic.CurrentPosition, this.currentPosition);
+			this.log("currentPosition is now %s", this.currentPosition);
+			this.service.setCharacteristic(Characteristic.PositionState, Characteristic.PositionState.STOPPED);
+			callback(null); // success
+		}
 	},
 
 	getPositionState: function(callback) {

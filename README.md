@@ -24,8 +24,12 @@ Configuration sample:
             {
                 "accessory": "WindowCover",
                 "name": "Window Cover Demo",
-                "apiroute": "",
-                "id": "123"
+                "id": "optional for now",
+                "scriptPath": "optional",
+                "commandUp": "optional",
+                "commandStop": "optional",
+                "commandDown": "optional",
+                "apiroute": "optional",
             }
         ],
 

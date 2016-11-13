@@ -1,6 +1,6 @@
 {
   "name": "homebridge-window-cover",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Homebridge Window Cover Plugin",
   "main": "index.js",
   "engines": {
@@ -29,6 +29,7 @@
   },
   "homepage": "https://github.com/PJCzx/homebridge-window-cover#readme",
   "dependencies": {
+    "python-shell": "^0.4.0",
     "request": "^2.78.0"
   }
 }
