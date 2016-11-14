@@ -12,15 +12,13 @@ module.exports = function(homebridge) {
 
 
 function WindowCover(log, config) {
-	this.log = log;
-	this.name = config.name || "A window cover need a name";
-	this.apiroute = config.apiroute || undefined;
-	this.id = config.id || 0;
 	this.service = new Service.WindowCovering(this.name);
-	this.scriptPath = config.scriptPath || undefined,
-	this.commandUp = config.commandUp || "up",
-	this.commandStop = config.commandUp || "stop",
-	this.commandDown = config.commandDown || "down",
+	this.log = log;
+	this.name = config.name || "Window cover";
+	this.id = config.id || 0;
+	this.scriptPath = config.scriptPath;
+	this.apiroute = config.apiroute;
+
 
 	// Required Characteristics
 	this.currentPosition = 100;
@@ -71,21 +69,22 @@ WindowCover.prototype = {
 	setTargetPosition: function (value, callback) {
 		this.log("setTargetPosition from %s to %s", this.targetPosition, value);
 		this.targetPosition = value;
-		
-		var options = {};
-		options.scriptPath =  this.scriptPath;
-		options.args = [this.commandStop];
 
 		if(this.targetPosition > this.currentPosition) {
 			this.service.setCharacteristic(Characteristic.PositionState, Characteristic.PositionState.INCREASING);
-			options.args = [this.commandUp];
 		} else if(this.targetPosition < this.currentPosition) {
 			this.service.setCharacteristic(Characteristic.PositionState, Characteristic.PositionState.DECREASING);
-			options.args = [this.commandDown];
-		}
+		} else if(this.targetPosition = this.currentPosition) {
+			this.service.setCharacteristic(Characteristic.PositionState, Characteristic.PositionState.STOPPED);
+		}		
 
 		//PYTHON 
 		if(this.scriptPath !== undefined) {
+
+			var options = {};
+			options.scriptPath =  this.scriptPath;
+			options.args = [this.targetPosition];
+
 			PythonShell.run(this.scriptPath, options, function (err, results) {
 			  	if (err) {
 			  		this.log("Script Error", options.scriptPath, options.args);

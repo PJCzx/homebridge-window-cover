@@ -26,9 +26,6 @@ Configuration sample:
                 "name": "Window Cover Demo",
                 "id": "optional for now",
                 "scriptPath": "optional",
-                "commandUp": "optional",
-                "commandStop": "optional",
-                "commandDown": "optional",
                 "apiroute": "optional",
             }
         ],
