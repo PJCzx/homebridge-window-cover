@@ -24,9 +24,10 @@ Configuration sample:
             {
                 "accessory": "WindowCover",
                 "name": "Window Cover Demo",
-                "id": "optional for now",
-                "scriptPath": "optional",
-                "apiroute": "optional",
+                "id": "123",
+                "pythonScriptPath": "ABSOLUTE_PATH_TO_SCRIPT",
+                "pythonScriptName": "SCRIPT_NAME.py"
+                "apiroute": "ABSOLUTE_URL",
             }
         ],
 

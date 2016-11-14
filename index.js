@@ -16,7 +16,8 @@ function WindowCover(log, config) {
 	this.log = log;
 	this.name = config.name || "Window cover";
 	this.id = config.id || 0;
-	this.scriptPath = config.scriptPath;
+	this.pythonScriptPath = config.pythonScriptPath;
+	this.pythonScriptName = config.pythonScriptName;
 	this.apiroute = config.apiroute;
 
 
@@ -79,15 +80,15 @@ WindowCover.prototype = {
 		}		
 
 		//PYTHON 
-		if(this.scriptPath !== undefined) {
+		if(this.pythonScriptPath !== undefined) {
 
 			var options = {};
-			options.scriptPath =  this.scriptPath;
-			options.args = [this.targetPosition];
+			options.args = this.targetPosition;
+			options.scriptPath = this.pythonScriptPath
 
-			PythonShell.run(this.scriptPath, options, function (err, results) {
+			PythonShell.run(this.pythonScriptName, options, function (err, results) {
 			  	if (err) {
-			  		this.log("Script Error", options.scriptPath, options.args);
+			  		this.log("Script Error", options.scriptPath, options.args, err);
 			  	 	callback(err);
 			  	} else {
 					// results is an array consisting of messages collected during execution
