@@ -27,7 +27,7 @@ Configuration sample:
                 "id": "123",
                 "pythonScriptPath": "ABSOLUTE_PATH_TO_SCRIPT",
                 "pythonScriptName": "SCRIPT_NAME.py"
-                "apiroute": "ABSOLUTE_URL",
+                "apiroute": "ABSOLUTE_URL"
             }
         ],
 
